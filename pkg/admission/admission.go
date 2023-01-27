@@ -22,27 +22,23 @@ type Admitter struct {
 	Request *admissionv1.AdmissionRequest
 }
 
-// MutatePodReview takes an admission request and validates the pod within
-// it returns an admission review
-func (a Admitter) ValidatePodReview() (*admissionv1.AdmissionReview, error) {
+// MutatePodReview takes an admission request and mutates the pod within,
+// it returns an admission review with mutations as a json patch (if any)
+func (a Admitter) MutatePodReview() (*admissionv1.AdmissionReview, error) {
 	pod, err := a.Pod()
 	if err != nil {
 		e := fmt.Sprintf("could not parse pod in admission review request: %v", err)
 		return reviewResponse(a.Request.UID, false, http.StatusBadRequest, e), err
 	}
 
-	v := validation.NewValidator(a.Logger)
-	val, err := v.ValidatePod(pod)
+	m := mutation.NewMutator(a.Logger)
+	patch, err := m.MutatePodPatch(pod)
 	if err != nil {
-		e := fmt.Sprintf("could not validate pod: %v", err)
+		e := fmt.Sprintf("could not mutate pod: %v", err)
 		return reviewResponse(a.Request.UID, false, http.StatusBadRequest, e), err
 	}
 
-	if !val.Valid {
-		return reviewResponse(a.Request.UID, false, http.StatusForbidden, val.Reason), nil
-	}
-
-	return reviewResponse(a.Request.UID, true, http.StatusAccepted, "valid pod"), nil
+	return patchReviewResponse(a.Request.UID, patch)
 }
 
 // Pod extracts a pod from an admission request

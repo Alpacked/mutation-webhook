@@ -39,35 +39,37 @@ func pod() *corev1.Pod {
 	return &corev1.Pod{
 		ObjectMeta: v1.ObjectMeta{
 			Name: "lifespan",
-			Labels: map[string]string{
-				"acme.com/lifespan-requested": "7",
-			},
 		},
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{{
-				Name:  "lifespan",
-				Image: "busybox",
+				Name: "test",
+			}},
+			InitContainers: []corev1.Container{{
+				Name: "inittest",
 			}},
 		},
 	}
 }
 
 func patch() string {
-	patch := `[
+	patch := `	[
 		{"op":"add","path":"/spec/containers/0/env","value":[
 			{"name":"KUBE","value":"true"}
 		]},
-		{"op":"add","path":"/spec/tolerations","value":[
-			{"effect":"NoSchedule","key":"acme.com/lifespan-remaining","operator":"Equal","value":"14"},
-			{"effect":"NoSchedule","key":"acme.com/lifespan-remaining","operator":"Equal","value":"13"},
-			{"effect":"NoSchedule","key":"acme.com/lifespan-remaining","operator":"Equal","value":"12"},
-			{"effect":"NoSchedule","key":"acme.com/lifespan-remaining","operator":"Equal","value":"11"},
-			{"effect":"NoSchedule","key":"acme.com/lifespan-remaining","operator":"Equal","value":"10"},
-			{"effect":"NoSchedule","key":"acme.com/lifespan-remaining","operator":"Equal","value":"9"},
-			{"effect":"NoSchedule","key":"acme.com/lifespan-remaining","operator":"Equal","value":"8"},
-			{"effect":"NoSchedule","key":"acme.com/lifespan-remaining","operator":"Equal","value":"7"}
-		]}
-]`
+		{"op":"add","path":"/spec/containers/0/securityContext","value":{
+			"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true
+		}},
+		{"op":"add","path":"/spec/initContainers/0/env","value":[
+			{"name":"KUBE","value":"true"}
+		]},
+		{"op":"add","path":"/spec/initContainers/0/securityContext","value":{
+			"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true
+		}},
+		{"op":"add","path":"/spec/securityContext","value":{
+			"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}
+		}
+	]`
+
 
 	patch = strings.ReplaceAll(patch, "\n", "")
 	patch = strings.ReplaceAll(patch, "\t", "")
