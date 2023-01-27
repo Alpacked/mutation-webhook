@@ -10,6 +10,6 @@ spec:
         - "3600"
       image: busybox
       name: lifespan-seven
-  securityContext:
-    runAsNonRoot: false
+      securityContext:
+        runAsNonRoot: false
   restartPolicy: Always

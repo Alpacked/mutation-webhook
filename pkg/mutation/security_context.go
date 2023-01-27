@@ -24,15 +24,13 @@ func (mpl injectSecurityContext) Mutate(pod *corev1.Pod) (*corev1.Pod, error) {
 	mpl.Logger = mpl.Logger.WithField("mutation", mpl.Name())
 	mpod := pod.DeepCopy()
 
-	mpl.Logger.WithField("p_sc_before", mpod.Spec.SecurityContext).Printf("pod sc before mutation")
-	mpl.Logger.WithField("c_sc_before", mpod.Spec.Containers[0].SecurityContext).Printf("con sc before mutation")
-
 	if IsPodSecurityContextEmpty(mpod.Spec.SecurityContext) {
 		mpod.Spec.SecurityContext = &corev1.PodSecurityContext{
 			RunAsUser:    &[]int64{1000}[0],
 			RunAsGroup:   &[]int64{1000}[0],
 			RunAsNonRoot: &[]bool{true}[0],
 		}
+		mpl.Logger.WithField("inj_sec_context", mpod.Spec.SecurityContext).Printf("setting pod security context")
 	}
 
 	for i := range mpod.Spec.Containers {
@@ -45,6 +43,7 @@ func (mpl injectSecurityContext) Mutate(pod *corev1.Pod) (*corev1.Pod, error) {
 					Drop: []corev1.Capability{"ALL"},
 				},
 			}
+			mpl.Logger.WithField("inj_sec_context", mpod.Spec.Containers[i].SecurityContext).Printf("setting security context for container: %s", mpod.Spec.Containers[i].Name)
 		}
 	}
 
@@ -58,10 +57,9 @@ func (mpl injectSecurityContext) Mutate(pod *corev1.Pod) (*corev1.Pod, error) {
 					Drop: []corev1.Capability{"ALL"},
 				},
 			}
+			mpl.Logger.WithField("inj_sec_context", mpod.Spec.InitContainers[i].SecurityContext).Printf("setting security context for initContainer: %s", mpod.Spec.InitContainers[i].Name)
 		}
 	}
-
-	mpl.Logger.WithField("inj_sec_context", mpod.Spec.SecurityContext).Printf("setting security context")
 
 	return mpod, nil
 }
