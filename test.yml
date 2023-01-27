@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: lifespan-seven
+  name: test-pod
   namespace: apps
 spec:
   containers:
@@ -9,7 +9,5 @@ spec:
         - sleep
         - "3600"
       image: busybox
-      name: lifespan-seven
-      securityContext:
-        runAsNonRoot: false
+      name: test-container
   restartPolicy: Always
