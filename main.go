@@ -20,15 +20,16 @@ func main() {
 	http.HandleFunc("/health", ServeHealth)
 
 	// start the server
-	// listens to clear text http on port 8080 unless TLS env var is set to "true"
+	// listens to clear text http on specified port unless TLS env var is set to "true"
+	listen_port := os.Getenv("LISTEN_PORT")
 	if os.Getenv("TLS") == "true" {
 		cert := "/etc/admission-webhook/tls/tls.crt"
 		key := "/etc/admission-webhook/tls/tls.key"
-		logrus.Print("Listening on port 443...")
-		logrus.Fatal(http.ListenAndServeTLS(":443", cert, key, nil))
+		logrus.Printf("Listening on port %s...", listen_port)
+		logrus.Fatal(http.ListenAndServeTLS(":" + listen_port, cert, key, nil))
 	} else {
-		logrus.Print("Listening on port 8080...")
-		logrus.Fatal(http.ListenAndServe(":8080", nil))
+		logrus.Printf("Listening on port %s...", listen_port)
+		logrus.Fatal(http.ListenAndServe(":" + listen_port, nil))
 	}
 }
 

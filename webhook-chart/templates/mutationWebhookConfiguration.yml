@@ -20,7 +20,7 @@ webhooks:
         namespace: {{ .Release.Namespace }}
         name: {{ include "webhook.fullname" . }}
         path: /mutate-pods
-        port: 443
+        port: {{ .Values.env.LISTEN_PORT }}
     admissionReviewVersions: ["v1"]
     sideEffects: None
     timeoutSeconds: 5
