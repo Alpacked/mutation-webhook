@@ -52,12 +52,10 @@ resources: {}
   #   memory: 128Mi
 
 env:
-  - name: TLS
-    value: "'true'"
-  - name: LOG_LEVEL
-    value: "trace"
-  - name: LOG_JSON
-    value: "'false'"
+  TLS: true
+  LISTEN_PORT: 8443
+  LOG_LEVEL: "trace"
+  LOG_JSON: false
 
 secretName: webhook-certificate
 

@@ -8,8 +8,12 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: 443
-      targetPort: 443
-      name: https
+    - port: {{ .Values.env.LISTEN_PORT }}
+      targetPort: {{ .Values.env.LISTEN_PORT }}
+      name: {{ if .Values.env.TLS }}
+              https
+            {{ else }}
+              http
+            {{ end }}
   selector:
     {{- include "webhook.selectorLabels" . | nindent 4 }}
